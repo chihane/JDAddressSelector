@@ -1,6 +1,10 @@
 package chihane.jdaddressselector;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -122,38 +126,45 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
     }
 
     private void updateIndicator() {
-        textViewStreet.post(new Runnable() {
+        view.post(new Runnable() {
             @Override
             public void run() {
-                ViewGroup.LayoutParams params = indicator.getLayoutParams();
                 switch (tabIndex) {
                     case INDEX_TAB_PROVINCE:
-                        params.width = textViewProvince.getMeasuredWidth();
-                        indicator.setLayoutParams(params);
-
-                        indicator.setX(textViewProvince.getX());
+                        buildIndicatorAnimatorTowards(textViewProvince).start();
                         break;
                     case INDEX_TAB_CITY:
-                        params.width = textViewCity.getMeasuredWidth();
-                        indicator.setLayoutParams(params);
-
-                        indicator.setX(textViewCity.getX());
+                        buildIndicatorAnimatorTowards(textViewCity).start();
                         break;
                     case INDEX_TAB_COUNTY:
-                        params.width = textViewCounty.getMeasuredWidth();
-                        indicator.setLayoutParams(params);
-
-                        indicator.setX(textViewCounty.getX());
+                        buildIndicatorAnimatorTowards(textViewCounty).start();
                         break;
                     case INDEX_TAB_STREET:
-                        params.width = textViewStreet.getMeasuredWidth();
-                        indicator.setLayoutParams(params);
-
-                        indicator.setX(textViewStreet.getX());
+                        buildIndicatorAnimatorTowards(textViewStreet).start();
                         break;
                 }
             }
         });
+    }
+
+    private AnimatorSet buildIndicatorAnimatorTowards(TextView tab) {
+        ObjectAnimator xAnimator = ObjectAnimator.ofFloat(indicator, "X", indicator.getX(), tab.getX());
+
+        final ViewGroup.LayoutParams params = indicator.getLayoutParams();
+        ValueAnimator widthAnimator = ValueAnimator.ofInt(params.width, tab.getMeasuredWidth());
+        widthAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                params.width = (int) animation.getAnimatedValue();
+                indicator.setLayoutParams(params);
+            }
+        });
+
+        AnimatorSet set = new AnimatorSet();
+        set.setInterpolator(new FastOutSlowInInterpolator());
+        set.playTogether(xAnimator, widthAnimator);
+
+        return set;
     }
 
     class OnProvinceTabClickListener implements View.OnClickListener {

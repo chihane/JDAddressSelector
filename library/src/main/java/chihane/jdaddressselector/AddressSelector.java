@@ -200,6 +200,9 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 this.countyIndex = INDEX_INVALID;
                 this.streetIndex = INDEX_INVALID;
 
+                // 更新选中效果
+                provinceAdapter.notifyDataSetChanged();
+
                 if (Lists.notEmpty(cities)) {
                     // 以次级内容更新列表
                     listView.setAdapter(cityAdapter);
@@ -228,6 +231,8 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 this.countyIndex = INDEX_INVALID;
                 this.streetIndex = INDEX_INVALID;
 
+                cityAdapter.notifyDataSetChanged();
+
                 if (Lists.notEmpty(counties)) {
                     listView.setAdapter(countyAdapter);
                     tabIndex = INDEX_TAB_COUNTY;
@@ -249,6 +254,8 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 this.countyIndex = position;
                 this.streetIndex = INDEX_INVALID;
 
+                countyAdapter.notifyDataSetChanged();
+
                 if (Lists.notEmpty(streets)) {
                     listView.setAdapter(streetAdapter);
                     tabIndex = INDEX_TAB_STREET;
@@ -262,6 +269,8 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 Street street = streetAdapter.getItem(position);
 
                 textViewStreet.setText(street.name);
+
+                streetAdapter.notifyDataSetChanged();
 
                 this.streetIndex = position;
 
@@ -278,11 +287,16 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
     private void callbackInternal() {
         if (listener != null) {
+            Province province = provinces == null || provinceIndex == INDEX_INVALID ? null : provinces.get(provinceIndex);
+            City city = cities == null || cityIndex == INDEX_INVALID ? null : cities.get(cityIndex);
+            County county = counties == null || countyIndex == INDEX_INVALID ? null : counties.get(countyIndex);
+            Street street = streets == null || streetIndex == INDEX_INVALID ? null : streets.get(streetIndex);
+
             listener.onAddressSelected(
-                    provinces.get(provinceIndex),
-                    cities.get(cityIndex),
-                    counties.get(countyIndex),
-                    streets.get(streetIndex)
+                    province,
+                    city,
+                    county,
+                    street
             );
         }
     }

@@ -31,9 +31,9 @@ public class MainActivity extends AppCompatActivity implements AddressSelector.O
     public void onAddressSelected(Province province, City city, County county, Street street) {
         String s =
                 (province == null ? "" : province.name) +
-                (city == null ? "" : city.name) +
-                (county == null ? "" : county.name) +
-                (street == null ? "" : street.name);
+                (city == null ? "" : "\n" + city.name) +
+                (county == null ? "" : "\n" + county.name) +
+                (street == null ? "" : "\n" + street.name);
 
         T.showShort(this, s);
     }

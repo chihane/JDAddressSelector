@@ -22,7 +22,6 @@ import chihane.jdaddressselector.model.Province;
 import chihane.jdaddressselector.model.Street;
 import chihane.jdaddressselector.model.Street_Table;
 import mlxy.utils.Lists;
-import mlxy.utils.T;
 
 public class AddressSelector implements AdapterView.OnItemClickListener {
     private static final int INDEX_TAB_PROVINCE = 0;
@@ -34,6 +33,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
     private final Context context;
     private final LayoutInflater inflater;
+    private OnAddressSelectedListener listener;
 
     private View view;
 
@@ -277,14 +277,14 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
     }
 
     private void callbackInternal() {
-        // TODO Callback
-        StringBuilder builder = new StringBuilder();
-        builder.append(provinceIndex == INDEX_INVALID ? "" : provinces.get(provinceIndex).name);
-        builder.append(cityIndex == INDEX_INVALID ? "" : "\n" + cities.get(cityIndex).name);
-        builder.append(countyIndex == INDEX_INVALID ? "" : "\n" + counties.get(countyIndex).name);
-        builder.append(streetIndex == INDEX_INVALID ? "" : "\n" + streets.get(streetIndex).name);
-
-        T.showShort(context, builder.toString());
+        if (listener != null) {
+            listener.onAddressSelected(
+                    provinces.get(provinceIndex),
+                    cities.get(cityIndex),
+                    counties.get(countyIndex),
+                    streets.get(streetIndex)
+            );
+        }
     }
 
     private FlowQueryList<Province> selectProvinces() {
@@ -508,5 +508,17 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
             TextView textView;
             ImageView imageViewCheckMark;
         }
+    }
+
+    public interface OnAddressSelectedListener {
+        void onAddressSelected(Province province, City city, County county, Street street);
+    }
+
+    public OnAddressSelectedListener getOnAddressSelectedListener() {
+        return listener;
+    }
+
+    public void setOnAddressSelectedListener(OnAddressSelectedListener listener) {
+        this.listener = listener;
     }
 }

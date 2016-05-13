@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="chihane.jdaddressselector">
+
+    <application
+        android:name=".global.Application"
+        android:allowBackup="true"
+        android:supportsRtl="true">
+
+    </application>
+
+</manifest>

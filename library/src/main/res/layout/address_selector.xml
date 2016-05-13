@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/layout_tab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textViewProvince"
+            style="@style/tab" />
+
+        <TextView
+            android:id="@+id/textViewCity"
+            style="@style/tab" />
+
+        <TextView
+            android:id="@+id/textViewCounty"
+            style="@style/tab" />
+
+        <TextView
+            android:id="@+id/textViewStreet"
+            style="@style/tab" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#e8e8e8" />
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:divider="@null" />
+
+</LinearLayout>

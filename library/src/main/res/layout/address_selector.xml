@@ -5,29 +5,42 @@
     android:background="@android:color/white"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/layout_tab"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/textViewProvince"
-            style="@style/tab" />
+        <LinearLayout
+            android:id="@+id/layout_tab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/textViewCity"
-            style="@style/tab" />
+            <TextView
+                android:id="@+id/textViewProvince"
+                style="@style/tab" />
 
-        <TextView
-            android:id="@+id/textViewCounty"
-            style="@style/tab" />
+            <TextView
+                android:id="@+id/textViewCity"
+                style="@style/tab" />
 
-        <TextView
-            android:id="@+id/textViewStreet"
-            style="@style/tab" />
+            <TextView
+                android:id="@+id/textViewCounty"
+                style="@style/tab" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/textViewStreet"
+                style="@style/tab" />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/indicator"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_below="@+id/layout_tab"
+            android:background="@android:color/holo_red_light" />
+
+    </RelativeLayout>
 
     <View
         android:layout_width="match_parent"

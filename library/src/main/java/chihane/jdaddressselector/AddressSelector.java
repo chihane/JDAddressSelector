@@ -38,6 +38,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
     private View view;
 
     private LinearLayout layouttab;
+    private View indicator;
 
     private TextView textViewProvince;
     private TextView textViewCity;
@@ -103,6 +104,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         view = inflater.inflate(R.layout.address_selector, null);
         this.listView = (ListView) view.findViewById(R.id.listView);
         this.layouttab = (LinearLayout) view.findViewById(R.id.layout_tab);
+        this.indicator = view.findViewById(R.id.indicator);
 
         this.textViewProvince = (TextView) view.findViewById(R.id.textViewProvince);
         this.textViewCity = (TextView) view.findViewById(R.id.textViewCity);
@@ -115,6 +117,43 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         this.textViewStreet.setOnClickListener(new OnStreetTabClickListener());
 
         this.listView.setOnItemClickListener(this);
+
+        updateIndicator();
+    }
+
+    private void updateIndicator() {
+        textViewStreet.post(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup.LayoutParams params = indicator.getLayoutParams();
+                switch (tabIndex) {
+                    case INDEX_TAB_PROVINCE:
+                        params.width = textViewProvince.getMeasuredWidth();
+                        indicator.setLayoutParams(params);
+
+                        indicator.setX(textViewProvince.getX());
+                        break;
+                    case INDEX_TAB_CITY:
+                        params.width = textViewCity.getMeasuredWidth();
+                        indicator.setLayoutParams(params);
+
+                        indicator.setX(textViewCity.getX());
+                        break;
+                    case INDEX_TAB_COUNTY:
+                        params.width = textViewCounty.getMeasuredWidth();
+                        indicator.setLayoutParams(params);
+
+                        indicator.setX(textViewCounty.getX());
+                        break;
+                    case INDEX_TAB_STREET:
+                        params.width = textViewStreet.getMeasuredWidth();
+                        indicator.setLayoutParams(params);
+
+                        indicator.setX(textViewStreet.getX());
+                        break;
+                }
+            }
+        });
     }
 
     class OnProvinceTabClickListener implements View.OnClickListener {
@@ -129,6 +168,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
             }
 
             updateTabsVisibility();
+            updateIndicator();
         }
     }
 
@@ -143,6 +183,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
             }
 
             updateTabsVisibility();
+            updateIndicator();
         }
     }
 
@@ -157,6 +198,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
             }
 
             updateTabsVisibility();
+            updateIndicator();
         }
     }
 
@@ -171,6 +213,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
             }
 
             updateTabsVisibility();
+            updateIndicator();
         }
     }
 
@@ -279,6 +322,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
 
         updateTabsVisibility();
+        updateIndicator();
     }
 
     public View getView() {

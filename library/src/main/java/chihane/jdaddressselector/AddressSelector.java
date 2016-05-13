@@ -292,12 +292,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
             County county = counties == null || countyIndex == INDEX_INVALID ? null : counties.get(countyIndex);
             Street street = streets == null || streetIndex == INDEX_INVALID ? null : streets.get(streetIndex);
 
-            listener.onAddressSelected(
-                    province,
-                    city,
-                    county,
-                    street
-            );
+            listener.onAddressSelected(province, city, county, street);
         }
     }
 

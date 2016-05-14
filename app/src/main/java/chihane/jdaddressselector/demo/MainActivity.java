@@ -1,10 +1,13 @@
 package chihane.jdaddressselector.demo;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 import chihane.jdaddressselector.AddressSelector;
+import chihane.jdaddressselector.BottomDialog;
 import chihane.jdaddressselector.model.City;
 import chihane.jdaddressselector.model.County;
 import chihane.jdaddressselector.model.Province;
@@ -25,6 +28,18 @@ public class MainActivity extends AppCompatActivity implements AddressSelector.O
 
         assert frameLayout != null;
         frameLayout.addView(selector.getView());
+
+        Button buttonBottomDialog = (Button) findViewById(R.id.buttonBottomDialog);
+        assert buttonBottomDialog != null;
+        buttonBottomDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                BottomDialog.show(MainActivity.this, MainActivity.this);
+                BottomDialog dialog = new BottomDialog(MainActivity.this);
+                dialog.setOnAddressSelectedListener(MainActivity.this);
+                dialog.show();
+            }
+        });
     }
 
     @Override

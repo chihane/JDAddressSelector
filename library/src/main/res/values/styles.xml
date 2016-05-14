@@ -7,7 +7,7 @@
         <item name="android:maxLines">1</item>
         <item name="android:padding">10dp</item>
         <item name="android:text">请选择</item>
-        <item name="android:textColor">@drawable/selector_text_color_tab</item>
+        <item name="android:textColor">@color/selector_text_color_tab</item>
         <item name="android:textSize">14sp</item>
         <item name="android:visibility">gone</item>
     </style>

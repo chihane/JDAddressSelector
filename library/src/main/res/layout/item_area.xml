@@ -11,7 +11,7 @@
         android:layout_centerVertical="true"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="@drawable/selector_text_color_tab"
+        android:textColor="@color/selector_text_color_tab"
         android:textSize="14sp" />
 
     <ImageView

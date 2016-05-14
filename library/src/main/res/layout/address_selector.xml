@@ -47,10 +47,10 @@
         android:layout_height="1dp"
         android:background="#e8e8e8" />
 
-    <ListView
+    <chihane.jdaddressselector.widget.UninterceptableListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="256dp"
         android:divider="@null" />
 
 </LinearLayout>

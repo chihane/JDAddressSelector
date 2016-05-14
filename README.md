@@ -15,7 +15,7 @@
         }
     }
     
-模块的 `bulid.gradle` 中：
+模块的 `build.gradle` 中：
 
     dependencies {
         ...

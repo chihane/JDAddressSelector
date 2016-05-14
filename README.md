@@ -7,6 +7,13 @@
 ### 使用方法
 
     AddressSelector selector = new AddressSelector(context);
+    selector.setOnAddressSelectedListener(new AddressSelector.OnAddressSelectedListener() {
+        @Override
+        public void onAddressSelected(Province province, City city, County county, Street street) {
+            // blahblahblah
+        }
+    });
+            
     View view = selector.getView();
     // frameLayout.addView(view)
     // new AlertDialog.Builder(context).setView(view).show()

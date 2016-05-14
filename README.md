@@ -4,6 +4,24 @@
 
 ![image](https://github.com/chihane/JDAddressSelector/raw/master/screenshots/screenshot1.jpg)
 
+## 添加依赖
+
+项目的 `build.gradle` 文件中：
+
+    allprojects {
+        repositories {
+            ...
+            maven { url "https://jitpack.io"}
+        }
+    }
+    
+模块的 `bulid.gradle` 中：
+
+    dependencies {
+        ...
+        compile 'com.github.chihane:JDAddressSelector:1.0.0'
+    }
+    
 ### 使用方法
 
     AddressSelector selector = new AddressSelector(context);

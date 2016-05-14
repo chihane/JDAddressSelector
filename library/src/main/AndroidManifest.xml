@@ -2,7 +2,6 @@
     package="chihane.jdaddressselector">
 
     <application
-        android:name=".global.Application"
         android:allowBackup="true"
         android:supportsRtl="true">
 

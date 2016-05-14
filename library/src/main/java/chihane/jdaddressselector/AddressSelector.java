@@ -15,6 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.raizlabs.android.dbflow.config.FlowConfig;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
@@ -70,6 +72,8 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
     public AddressSelector(Context context) {
         this.context = context;
         inflater = LayoutInflater.from(context);
+
+        FlowManager.init(new FlowConfig.Builder(context).build());
 
         initViews();
 

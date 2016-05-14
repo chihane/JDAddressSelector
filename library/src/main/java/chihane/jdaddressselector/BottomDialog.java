@@ -58,4 +58,10 @@ public class BottomDialog extends Dialog {
 
         return dialog;
     }
+
+    public static void hideIfShown() {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.hide();
+        }
+    }
 }

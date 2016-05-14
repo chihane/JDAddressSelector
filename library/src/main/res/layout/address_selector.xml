@@ -50,7 +50,7 @@
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
-        android:layout_height="240dp"
+        android:layout_height="wrap_content"
         android:divider="@null" />
 
 </LinearLayout>

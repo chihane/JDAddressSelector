@@ -6,7 +6,7 @@
 
 ## 添加依赖
 
-项目的 `build.gradle` 文件中：
+项目的 `build.gradle` 中：
 
     allprojects {
         repositories {

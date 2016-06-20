@@ -41,13 +41,9 @@
     
 ### BottomDialog
 
-    BottomDialog.show(context, new AddressSelector.OnAddressSelectedListener() {
-                @Override
-                public void onAddressSelected(Province province, City city, County county, Street street) {
-                    
-                }
-            });
-    BottomDialog.hideIfShown();
+    BottomDialog dialog = new BottomDialog(context);
+    dialog.setOnAddressSelectedListener(listener);
+    dialog.show();
     
 ## 关于我
 

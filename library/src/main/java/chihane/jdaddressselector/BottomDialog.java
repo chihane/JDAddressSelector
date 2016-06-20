@@ -10,7 +10,6 @@ import mlxy.utils.Dev;
 
 public class BottomDialog extends Dialog {
     private AddressSelector selector;
-    private static BottomDialog dialog;
 
     public BottomDialog(Context context) {
         super(context, R.style.bottom_dialog);
@@ -49,19 +48,10 @@ public class BottomDialog extends Dialog {
     }
 
     public static BottomDialog show(Context context, AddressSelector.OnAddressSelectedListener listener) {
-        if (dialog == null) {
-            dialog = new BottomDialog(context, R.style.bottom_dialog);
-        }
-
+        BottomDialog dialog = new BottomDialog(context, R.style.bottom_dialog);
         dialog.selector.setOnAddressSelectedListener(listener);
         dialog.show();
 
         return dialog;
-    }
-
-    public static void hideIfShown() {
-        if (dialog != null && dialog.isShowing()) {
-            dialog.hide();
-        }
     }
 }

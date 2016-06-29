@@ -4,6 +4,8 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,14 +13,18 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import chihane.jdaddressselector.model.City;
 import chihane.jdaddressselector.model.City_Table;
@@ -37,13 +43,87 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
     private static final int INDEX_INVALID = -1;
 
+    private static final int WHAT_PROVINCES_SELECTED = 0;
+    private static final int WHAT_CITIES_SELECTED = 1;
+    private static final int WHAT_COUNTIES_SELECTED = 2;
+    private static final int WHAT_STREETS_SELECTED = 3;
+
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what) {
+                case WHAT_PROVINCES_SELECTED:
+                    provinces = (List<Province>) msg.obj;
+                    provinceAdapter.notifyDataSetChanged();
+                    listView.setAdapter(provinceAdapter);
+
+                    updateTabsVisibility();
+                    updateIndicator();
+                    updateProgressVisibility();
+                    return true;
+
+                case WHAT_CITIES_SELECTED:
+                    cities = (List<City>) msg.obj;
+                    cityAdapter.notifyDataSetChanged();
+                    if (Lists.notEmpty(cities)) {
+                        // 以次级内容更新列表
+                        listView.setAdapter(cityAdapter);
+                        // 更新索引为次级
+                        tabIndex = INDEX_TAB_CITY;
+                    } else {
+                        // 次级无内容，回调
+                        callbackInternal();
+                    }
+
+                    updateTabsVisibility();
+                    updateProgressVisibility();
+                    updateIndicator();
+                    return true;
+
+                case WHAT_COUNTIES_SELECTED:
+                    counties = (List<County>) msg.obj;
+                    countyAdapter.notifyDataSetChanged();
+                    if (Lists.notEmpty(counties)) {
+                        listView.setAdapter(countyAdapter);
+                        tabIndex = INDEX_TAB_COUNTY;
+                    } else {
+                        callbackInternal();
+                    }
+
+                    updateTabsVisibility();
+                    updateProgressVisibility();
+                    updateIndicator();
+                    return true;
+
+                case WHAT_STREETS_SELECTED:
+                    streets = (List<Street>) msg.obj;
+                    streetAdapter.notifyDataSetChanged();
+                    if (Lists.notEmpty(streets)) {
+                        listView.setAdapter(streetAdapter);
+                        tabIndex = INDEX_TAB_STREET;
+                    } else {
+                        callbackInternal();
+                    }
+
+                    updateTabsVisibility();
+                    updateProgressVisibility();
+                    updateIndicator();
+                    return true;
+            }
+
+            return false;
+        }
+    });
+
+    private static final AddressProvider DEFAULT_ADDRESS_PROVIDER = new DefaultAddressProvider();
+
     private final Context context;
     private final LayoutInflater inflater;
     private OnAddressSelectedListener listener;
+    private AddressProvider addressProvider = DEFAULT_ADDRESS_PROVIDER;
 
     private View view;
 
-    private LinearLayout layouttab;
     private View indicator;
 
     private TextView textViewProvince;
@@ -51,16 +131,18 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
     private TextView textViewCounty;
     private TextView textViewStreet;
 
+    private ProgressBar progressBar;
+
     private ListView listView;
     private ProvinceAdapter provinceAdapter;
     private CityAdapter cityAdapter;
     private CountyAdapter countyAdapter;
     private StreetAdapter streetAdapter;
 
-    private FlowQueryList<Province> provinces;
-    private FlowQueryList<City> cities;
-    private FlowQueryList<County> counties;
-    private FlowQueryList<Street> streets;
+    private List<Province> provinces;
+    private List<City> cities;
+    private List<County> counties;
+    private List<Street> streets;
 
     private int provinceIndex = INDEX_INVALID;
     private int cityIndex = INDEX_INVALID;
@@ -89,11 +171,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
     }
 
     private void initProvince() {
-        provinces = selectProvinces();
-        provinceAdapter.notifyDataSetChanged();
-        listView.setAdapter(provinceAdapter);
-
-        updateTabsVisibility();
+        selectProvinces();
     }
 
     private void updateTabsVisibility() {
@@ -110,8 +188,10 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
     private void initViews() {
         view = inflater.inflate(R.layout.address_selector, null);
+
+        this.progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+
         this.listView = (ListView) view.findViewById(R.id.listView);
-        this.layouttab = (LinearLayout) view.findViewById(R.id.layout_tab);
         this.indicator = view.findViewById(R.id.indicator);
 
         this.textViewProvince = (TextView) view.findViewById(R.id.textViewProvince);
@@ -244,8 +324,13 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 textViewCounty.setText("请选择");
                 textViewStreet.setText("请选择");
 
+                // 更新选中效果
+                provinceAdapter.notifyDataSetChanged();
+
+                selectCitiesBy(province.id);
+
                 // 更新子级数据
-                cities = selectCitiesBy(province.id);
+                cities = null;
                 counties = null;
                 streets = null;
                 cityAdapter.notifyDataSetChanged();
@@ -258,19 +343,6 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 this.countyIndex = INDEX_INVALID;
                 this.streetIndex = INDEX_INVALID;
 
-                // 更新选中效果
-                provinceAdapter.notifyDataSetChanged();
-
-                if (Lists.notEmpty(cities)) {
-                    // 以次级内容更新列表
-                    listView.setAdapter(cityAdapter);
-                    // 更新索引为次级
-                    tabIndex = INDEX_TAB_CITY;
-                } else {
-                    // 次级无内容，回调
-                    callbackInternal();
-                }
-
                 break;
 
             case INDEX_TAB_CITY:
@@ -280,7 +352,9 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 textViewCounty.setText("请选择");
                 textViewStreet.setText("请选择");
 
-                counties = selectCountiesBy(city.id);
+                selectCountiesBy(city.id);
+
+                counties = null;
                 streets = null;
                 countyAdapter.notifyDataSetChanged();
                 streetAdapter.notifyDataSetChanged();
@@ -291,13 +365,6 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
                 cityAdapter.notifyDataSetChanged();
 
-                if (Lists.notEmpty(counties)) {
-                    listView.setAdapter(countyAdapter);
-                    tabIndex = INDEX_TAB_COUNTY;
-                } else {
-                    callbackInternal();
-                }
-
                 break;
 
             case INDEX_TAB_COUNTY:
@@ -306,20 +373,15 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 textViewCounty.setText(county.name);
                 textViewStreet.setText("请选择");
 
-                streets = selectStreetsBy(county.id);
+                selectStreetsBy(county.id);
+
+                streets = null;
                 streetAdapter.notifyDataSetChanged();
 
                 this.countyIndex = position;
                 this.streetIndex = INDEX_INVALID;
 
                 countyAdapter.notifyDataSetChanged();
-
-                if (Lists.notEmpty(streets)) {
-                    listView.setAdapter(streetAdapter);
-                    tabIndex = INDEX_TAB_STREET;
-                } else {
-                    callbackInternal();
-                }
 
                 break;
 
@@ -355,31 +417,107 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
     }
 
-    private FlowQueryList<Province> selectProvinces() {
-        return SQLite.select()
-                .from(Province.class)
-                .flowQueryList();
+    private void updateProgressVisibility() {
+        ListAdapter adapter = listView.getAdapter();
+        int itemCount = adapter.getCount();
+        progressBar.setVisibility(itemCount > 0 ? View.GONE : View.VISIBLE);
     }
 
-    private FlowQueryList<City> selectCitiesBy(int provinceId) {
-        return SQLite.select()
-                .from(City.class)
-                .where(City_Table.province_id.eq(provinceId))
-                .flowQueryList();
+    protected void selectProvinces() {
+        progressBar.setVisibility(View.VISIBLE);
+        addressProvider.provideProvinces(new AddressProvider.Callback<Province>() {
+            @Override
+            public void callback(List<Province> data) {
+                handler.sendMessage(Message.obtain(handler, WHAT_PROVINCES_SELECTED, data));
+            }
+        });
     }
 
-    private FlowQueryList<County> selectCountiesBy(int cityId) {
-        return SQLite.select()
-                .from(County.class)
-                .where(County_Table.city_id.eq(cityId))
-                .flowQueryList();
+    protected void selectCitiesBy(int provinceId) {
+        progressBar.setVisibility(View.VISIBLE);
+        addressProvider.provideCitiesWith(provinceId, new AddressProvider.Callback<City>() {
+            @Override
+            public void callback(List<City> data) {
+                handler.sendMessage(Message.obtain(handler, WHAT_CITIES_SELECTED, data));
+            }
+        });
     }
 
-    private FlowQueryList<Street> selectStreetsBy(int countyId) {
-        return SQLite.select()
-                .from(Street.class)
-                .where(Street_Table.county_id.eq(countyId))
-                .flowQueryList();
+    protected void selectCountiesBy(int cityId) {
+        progressBar.setVisibility(View.VISIBLE);
+        addressProvider.provideCountiesWith(cityId, new AddressProvider.Callback<County>() {
+            @Override
+            public void callback(List<County> data) {
+                handler.sendMessage(Message.obtain(handler, WHAT_COUNTIES_SELECTED, data));
+            }
+        });
+    }
+
+    protected void selectStreetsBy(int countyId) {
+        progressBar.setVisibility(View.VISIBLE);
+        addressProvider.provideStreetsWith(countyId, new AddressProvider.Callback<Street>() {
+            @Override
+            public void callback(List<Street> data) {
+                handler.sendMessage(Message.obtain(handler, WHAT_STREETS_SELECTED, data));
+            }
+        });
+    }
+
+    private static class DefaultAddressProvider implements AddressProvider {
+        @Override
+        public void provideProvinces(final Callback<Province> callback) {
+            final FlowQueryList<Province> provinceQueryList = SQLite.select()
+                    .from(Province.class)
+                    .flowQueryList();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    callback.callback(new ArrayList<>(provinceQueryList));
+                }
+            }, 1000);
+        }
+
+        @Override
+        public void provideCitiesWith(int provinceId, final Callback<City> callback) {
+            final FlowQueryList<City> cityQueryList = SQLite.select()
+                    .from(City.class)
+                    .where(City_Table.province_id.eq(provinceId))
+                    .flowQueryList();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    callback.callback(new ArrayList<>(cityQueryList));
+                }
+            }, 1000);
+        }
+
+        @Override
+        public void provideCountiesWith(int cityId, final Callback<County> callback) {
+            final FlowQueryList<County> countyQueryList = SQLite.select()
+                    .from(County.class)
+                    .where(County_Table.city_id.eq(cityId))
+                    .flowQueryList();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    callback.callback(new ArrayList<>(countyQueryList));
+                }
+            }, 1000);
+        }
+
+        @Override
+        public void provideStreetsWith(int countyId, final Callback<Street> callback) {
+            final FlowQueryList<Street> streetQueryList = SQLite.select()
+                    .from(Street.class)
+                    .where(Street_Table.county_id.eq(countyId))
+                    .flowQueryList();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    callback.callback(new ArrayList<>(streetQueryList));
+                }
+            }, 1000);
+        }
     }
 
     class ProvinceAdapter extends BaseAdapter {
@@ -589,4 +727,27 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
     public void setOnAddressSelectedListener(OnAddressSelectedListener listener) {
         this.listener = listener;
     }
+
+    public interface AddressProvider {
+        void provideProvinces(Callback<Province> callback);
+        void provideCitiesWith(int provinceId, Callback<City> callback);
+        void provideCountiesWith(int countyId, Callback<County> callback);
+        void provideStreetsWith(int streetId, Callback<Street> callback);
+
+        interface Callback<T> {
+            void callback(List<T> data);
+        }
+    }
+
+    public AddressProvider getAddressProvider() {
+        return addressProvider;
+    }
+
+    public void setAddressProvider(AddressProvider addressProvider) {
+        this.addressProvider = addressProvider;
+        if (addressProvider == null) {
+            this.addressProvider = DEFAULT_ADDRESS_PROVIDER;
+        }
+    }
+
 }

@@ -47,11 +47,23 @@
         android:layout_height="1dp"
         android:background="#e8e8e8" />
 
-    <chihane.jdaddressselector.widget.UninterceptableListView
-        android:id="@+id/listView"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="@null" />
+        android:layout_weight="1">
+
+        <chihane.jdaddressselector.widget.UninterceptableListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@null" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
 
 </LinearLayout>

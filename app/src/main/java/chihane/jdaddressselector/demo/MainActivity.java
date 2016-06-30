@@ -8,13 +8,14 @@ import android.widget.FrameLayout;
 
 import chihane.jdaddressselector.AddressSelector;
 import chihane.jdaddressselector.BottomDialog;
+import chihane.jdaddressselector.OnAddressSelectedListener;
 import chihane.jdaddressselector.model.City;
 import chihane.jdaddressselector.model.County;
 import chihane.jdaddressselector.model.Province;
 import chihane.jdaddressselector.model.Street;
 import mlxy.utils.T;
 
-public class MainActivity extends AppCompatActivity implements AddressSelector.OnAddressSelectedListener {
+public class MainActivity extends AppCompatActivity implements OnAddressSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

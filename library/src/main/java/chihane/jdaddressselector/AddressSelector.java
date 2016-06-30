@@ -20,19 +20,13 @@ import android.widget.TextView;
 
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.list.FlowQueryList;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import chihane.jdaddressselector.model.City;
-import chihane.jdaddressselector.model.City_Table;
 import chihane.jdaddressselector.model.County;
-import chihane.jdaddressselector.model.County_Table;
 import chihane.jdaddressselector.model.Province;
 import chihane.jdaddressselector.model.Street;
-import chihane.jdaddressselector.model.Street_Table;
 import mlxy.utils.Lists;
 
 public class AddressSelector implements AdapterView.OnItemClickListener {
@@ -48,7 +42,8 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
     private static final int WHAT_COUNTIES_SELECTED = 2;
     private static final int WHAT_STREETS_SELECTED = 3;
 
-    Handler handler = new Handler(new Handler.Callback() {
+    @SuppressWarnings("unchecked")
+    private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
@@ -57,10 +52,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                     provinceAdapter.notifyDataSetChanged();
                     listView.setAdapter(provinceAdapter);
 
-                    updateTabsVisibility();
-                    updateIndicator();
-                    updateProgressVisibility();
-                    return true;
+                    break;
 
                 case WHAT_CITIES_SELECTED:
                     cities = (List<City>) msg.obj;
@@ -75,10 +67,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                         callbackInternal();
                     }
 
-                    updateTabsVisibility();
-                    updateProgressVisibility();
-                    updateIndicator();
-                    return true;
+                    break;
 
                 case WHAT_COUNTIES_SELECTED:
                     counties = (List<County>) msg.obj;
@@ -90,10 +79,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                         callbackInternal();
                     }
 
-                    updateTabsVisibility();
-                    updateProgressVisibility();
-                    updateIndicator();
-                    return true;
+                    break;
 
                 case WHAT_STREETS_SELECTED:
                     streets = (List<Street>) msg.obj;
@@ -105,13 +91,14 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                         callbackInternal();
                     }
 
-                    updateTabsVisibility();
-                    updateProgressVisibility();
-                    updateIndicator();
-                    return true;
+                    break;
             }
 
-            return false;
+            updateTabsVisibility();
+            updateProgressVisibility();
+            updateIndicator();
+
+            return true;
         }
     });
 
@@ -171,7 +158,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
     }
 
     private void initProvince() {
-        selectProvinces();
+        retrieveProvinces();
     }
 
     private void updateTabsVisibility() {
@@ -327,7 +314,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 // 更新选中效果
                 provinceAdapter.notifyDataSetChanged();
 
-                selectCitiesBy(province.id);
+                retrieveCitiesWith(province.id);
 
                 // 更新子级数据
                 cities = null;
@@ -352,7 +339,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 textViewCounty.setText("请选择");
                 textViewStreet.setText("请选择");
 
-                selectCountiesBy(city.id);
+                retrieveCountiesWith(city.id);
 
                 counties = null;
                 streets = null;
@@ -373,7 +360,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 textViewCounty.setText(county.name);
                 textViewStreet.setText("请选择");
 
-                selectStreetsBy(county.id);
+                retrieveStreetsWith(county.id);
 
                 streets = null;
                 streetAdapter.notifyDataSetChanged();
@@ -423,101 +410,44 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         progressBar.setVisibility(itemCount > 0 ? View.GONE : View.VISIBLE);
     }
 
-    protected void selectProvinces() {
+    private void retrieveProvinces() {
         progressBar.setVisibility(View.VISIBLE);
-        addressProvider.provideProvinces(new AddressProvider.Callback<Province>() {
+        addressProvider.provideProvinces(new AddressProvider.AddressReceiver<Province>() {
             @Override
-            public void callback(List<Province> data) {
+            public void send(List<Province> data) {
                 handler.sendMessage(Message.obtain(handler, WHAT_PROVINCES_SELECTED, data));
             }
         });
     }
 
-    protected void selectCitiesBy(int provinceId) {
+    private void retrieveCitiesWith(int provinceId) {
         progressBar.setVisibility(View.VISIBLE);
-        addressProvider.provideCitiesWith(provinceId, new AddressProvider.Callback<City>() {
+        addressProvider.provideCitiesWith(provinceId, new AddressProvider.AddressReceiver<City>() {
             @Override
-            public void callback(List<City> data) {
+            public void send(List<City> data) {
                 handler.sendMessage(Message.obtain(handler, WHAT_CITIES_SELECTED, data));
             }
         });
     }
 
-    protected void selectCountiesBy(int cityId) {
+    private void retrieveCountiesWith(int cityId) {
         progressBar.setVisibility(View.VISIBLE);
-        addressProvider.provideCountiesWith(cityId, new AddressProvider.Callback<County>() {
+        addressProvider.provideCountiesWith(cityId, new AddressProvider.AddressReceiver<County>() {
             @Override
-            public void callback(List<County> data) {
+            public void send(List<County> data) {
                 handler.sendMessage(Message.obtain(handler, WHAT_COUNTIES_SELECTED, data));
             }
         });
     }
 
-    protected void selectStreetsBy(int countyId) {
+    private void retrieveStreetsWith(int countyId) {
         progressBar.setVisibility(View.VISIBLE);
-        addressProvider.provideStreetsWith(countyId, new AddressProvider.Callback<Street>() {
+        addressProvider.provideStreetsWith(countyId, new AddressProvider.AddressReceiver<Street>() {
             @Override
-            public void callback(List<Street> data) {
+            public void send(List<Street> data) {
                 handler.sendMessage(Message.obtain(handler, WHAT_STREETS_SELECTED, data));
             }
         });
-    }
-
-    private static class DefaultAddressProvider implements AddressProvider {
-        @Override
-        public void provideProvinces(final Callback<Province> callback) {
-            final FlowQueryList<Province> provinceQueryList = SQLite.select()
-                    .from(Province.class)
-                    .flowQueryList();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    callback.callback(new ArrayList<>(provinceQueryList));
-                }
-            }, 1000);
-        }
-
-        @Override
-        public void provideCitiesWith(int provinceId, final Callback<City> callback) {
-            final FlowQueryList<City> cityQueryList = SQLite.select()
-                    .from(City.class)
-                    .where(City_Table.province_id.eq(provinceId))
-                    .flowQueryList();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    callback.callback(new ArrayList<>(cityQueryList));
-                }
-            }, 1000);
-        }
-
-        @Override
-        public void provideCountiesWith(int cityId, final Callback<County> callback) {
-            final FlowQueryList<County> countyQueryList = SQLite.select()
-                    .from(County.class)
-                    .where(County_Table.city_id.eq(cityId))
-                    .flowQueryList();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    callback.callback(new ArrayList<>(countyQueryList));
-                }
-            }, 1000);
-        }
-
-        @Override
-        public void provideStreetsWith(int countyId, final Callback<Street> callback) {
-            final FlowQueryList<Street> streetQueryList = SQLite.select()
-                    .from(Street.class)
-                    .where(Street_Table.county_id.eq(countyId))
-                    .flowQueryList();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    callback.callback(new ArrayList<>(streetQueryList));
-                }
-            }, 1000);
-        }
     }
 
     class ProvinceAdapter extends BaseAdapter {
@@ -716,27 +646,12 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
     }
 
-    public interface OnAddressSelectedListener {
-        void onAddressSelected(Province province, City city, County county, Street street);
-    }
-
     public OnAddressSelectedListener getOnAddressSelectedListener() {
         return listener;
     }
 
     public void setOnAddressSelectedListener(OnAddressSelectedListener listener) {
         this.listener = listener;
-    }
-
-    public interface AddressProvider {
-        void provideProvinces(Callback<Province> callback);
-        void provideCitiesWith(int provinceId, Callback<City> callback);
-        void provideCountiesWith(int countyId, Callback<County> callback);
-        void provideStreetsWith(int streetId, Callback<Street> callback);
-
-        interface Callback<T> {
-            void callback(List<T> data);
-        }
     }
 
     public AddressProvider getAddressProvider() {

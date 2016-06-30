@@ -654,10 +654,6 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         this.listener = listener;
     }
 
-    public AddressProvider getAddressProvider() {
-        return addressProvider;
-    }
-
     public void setAddressProvider(AddressProvider addressProvider) {
         this.addressProvider = addressProvider;
         if (addressProvider == null) {

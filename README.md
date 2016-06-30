@@ -19,7 +19,7 @@
 
     dependencies {
         ...
-        compile 'com.github.chihane:JDAddressSelector:1.1.2'
+        compile 'com.github.chihane:JDAddressSelector:1.1.3'
     }
     
 ## 使用方法
@@ -44,6 +44,49 @@
     BottomDialog dialog = new BottomDialog(context);
     dialog.setOnAddressSelectedListener(listener);
     dialog.show();
+    
+### 使用自定义数据源
+
+    selector.setAddressProvider(new AddressProvider() {
+        @Override
+        public void provideProvinces(AddressReceiver<Province> addressReceiver) {
+            List<Province> provinces = // blahblahblah 
+            addressReceiver.send(provinces);    
+        }
+    
+        @Override
+        public void provideCitiesWith(int provinceId, AddressReceiver<City> addressReceiver) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    List<City> cities = // blahblahblah
+                    addressReceiver.send(cities);
+                }
+            }).start();
+        }
+    
+        @Override
+        public void provideCountiesWith(int cityId, AddressReceiver<County> addressReceiver) {
+            addressApi.counties(cityId)
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(new Action1<List<County>>() {
+                        @Override
+                        public void call(List<County> counties) {
+                            addressReceiver.send(counties);
+                        }
+                    }, new Action1<Throwable>() {
+                        @Override
+                        public void call(Throwable throwable) {
+                            addressReceiver.send(null);
+                        }
+                    });
+        }
+    
+        @Override
+        public void provideStreetsWith(int countyId, AddressReceiver<Street> addressReceiver) {
+            // blahblahblah 
+        }
+    });
     
 ## 关于我
 

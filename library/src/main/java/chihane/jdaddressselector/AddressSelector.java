@@ -142,7 +142,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         this.context = context;
         inflater = LayoutInflater.from(context);
 
-        FlowManager.init(new FlowConfig.Builder(context).build());
+        FlowManager.init(new FlowConfig.Builder(context.getApplicationContext()).build());
 
         initViews();
 

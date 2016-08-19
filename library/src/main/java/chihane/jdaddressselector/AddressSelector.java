@@ -147,7 +147,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         initViews();
 
         initAdapters();
-        initProvince();
+        retrieveProvinces();
     }
 
     private void initAdapters() {
@@ -155,10 +155,6 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         cityAdapter = new CityAdapter();
         countyAdapter = new CountyAdapter();
         streetAdapter = new StreetAdapter();
-    }
-
-    private void initProvince() {
-        retrieveProvinces();
     }
 
     private void updateTabsVisibility() {
@@ -311,12 +307,9 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 textViewCounty.setText("请选择");
                 textViewStreet.setText("请选择");
 
-                // 更新选中效果
-                provinceAdapter.notifyDataSetChanged();
-
                 retrieveCitiesWith(province.id);
 
-                // 更新子级数据
+                // 清空子级数据
                 cities = null;
                 counties = null;
                 streets = null;
@@ -324,11 +317,14 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 countyAdapter.notifyDataSetChanged();
                 streetAdapter.notifyDataSetChanged();
 
-                // 更新选中数据
+                // 更新已选中项
                 this.provinceIndex = position;
                 this.cityIndex = INDEX_INVALID;
                 this.countyIndex = INDEX_INVALID;
                 this.streetIndex = INDEX_INVALID;
+
+                // 更新选中效果
+                provinceAdapter.notifyDataSetChanged();
 
                 break;
 
@@ -377,11 +373,12 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
                 textViewStreet.setText(street.name);
 
-                streetAdapter.notifyDataSetChanged();
-
                 this.streetIndex = position;
 
+                streetAdapter.notifyDataSetChanged();
+
                 callbackInternal();
+
                 break;
         }
 

@@ -37,24 +37,24 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
     private static final int INDEX_INVALID = -1;
 
-    private static final int WHAT_PROVINCES_SELECTED = 0;
-    private static final int WHAT_CITIES_SELECTED = 1;
-    private static final int WHAT_COUNTIES_SELECTED = 2;
-    private static final int WHAT_STREETS_SELECTED = 3;
+    private static final int WHAT_PROVINCES_PROVIDED = 0;
+    private static final int WHAT_CITIES_PROVIDED = 1;
+    private static final int WHAT_COUNTIES_PROVIDED = 2;
+    private static final int WHAT_STREETS_PROVIDED = 3;
 
     @SuppressWarnings("unchecked")
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
-                case WHAT_PROVINCES_SELECTED:
+                case WHAT_PROVINCES_PROVIDED:
                     provinces = (List<Province>) msg.obj;
                     provinceAdapter.notifyDataSetChanged();
                     listView.setAdapter(provinceAdapter);
 
                     break;
 
-                case WHAT_CITIES_SELECTED:
+                case WHAT_CITIES_PROVIDED:
                     cities = (List<City>) msg.obj;
                     cityAdapter.notifyDataSetChanged();
                     if (Lists.notEmpty(cities)) {
@@ -69,7 +69,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
                     break;
 
-                case WHAT_COUNTIES_SELECTED:
+                case WHAT_COUNTIES_PROVIDED:
                     counties = (List<County>) msg.obj;
                     countyAdapter.notifyDataSetChanged();
                     if (Lists.notEmpty(counties)) {
@@ -81,7 +81,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
                     break;
 
-                case WHAT_STREETS_SELECTED:
+                case WHAT_STREETS_PROVIDED:
                     streets = (List<Street>) msg.obj;
                     streetAdapter.notifyDataSetChanged();
                     if (Lists.notEmpty(streets)) {
@@ -415,7 +415,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         addressProvider.provideProvinces(new AddressProvider.AddressReceiver<Province>() {
             @Override
             public void send(List<Province> data) {
-                handler.sendMessage(Message.obtain(handler, WHAT_PROVINCES_SELECTED, data));
+                handler.sendMessage(Message.obtain(handler, WHAT_PROVINCES_PROVIDED, data));
             }
         });
     }
@@ -425,7 +425,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         addressProvider.provideCitiesWith(provinceId, new AddressProvider.AddressReceiver<City>() {
             @Override
             public void send(List<City> data) {
-                handler.sendMessage(Message.obtain(handler, WHAT_CITIES_SELECTED, data));
+                handler.sendMessage(Message.obtain(handler, WHAT_CITIES_PROVIDED, data));
             }
         });
     }
@@ -435,7 +435,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         addressProvider.provideCountiesWith(cityId, new AddressProvider.AddressReceiver<County>() {
             @Override
             public void send(List<County> data) {
-                handler.sendMessage(Message.obtain(handler, WHAT_COUNTIES_SELECTED, data));
+                handler.sendMessage(Message.obtain(handler, WHAT_COUNTIES_PROVIDED, data));
             }
         });
     }
@@ -445,7 +445,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         addressProvider.provideStreetsWith(countyId, new AddressProvider.AddressReceiver<Street>() {
             @Override
             public void send(List<Street> data) {
-                handler.sendMessage(Message.obtain(handler, WHAT_STREETS_SELECTED, data));
+                handler.sendMessage(Message.obtain(handler, WHAT_STREETS_PROVIDED, data));
             }
         });
     }

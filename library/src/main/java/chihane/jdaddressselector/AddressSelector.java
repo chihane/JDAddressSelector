@@ -18,9 +18,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.raizlabs.android.dbflow.config.FlowConfig;
-import com.raizlabs.android.dbflow.config.FlowManager;
-
 import java.util.List;
 
 import chihane.jdaddressselector.model.City;
@@ -102,12 +99,11 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
     });
 
-    private static final AddressProvider DEFAULT_ADDRESS_PROVIDER = new DefaultAddressProvider();
+    private static AddressProvider DEFAULT_ADDRESS_PROVIDER;
 
     private final Context context;
-    private final LayoutInflater inflater;
     private OnAddressSelectedListener listener;
-    private AddressProvider addressProvider = DEFAULT_ADDRESS_PROVIDER;
+    private AddressProvider addressProvider;
 
     private View view;
 
@@ -140,12 +136,11 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
     public AddressSelector(Context context) {
         this.context = context;
-        inflater = LayoutInflater.from(context);
 
-        FlowManager.init(new FlowConfig.Builder(context.getApplicationContext()).build());
+        DEFAULT_ADDRESS_PROVIDER = new DefaultAddressProvider(context);
+        addressProvider = DEFAULT_ADDRESS_PROVIDER;
 
         initViews();
-
         initAdapters();
         retrieveProvinces();
     }
@@ -157,20 +152,8 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         streetAdapter = new StreetAdapter();
     }
 
-    private void updateTabsVisibility() {
-        textViewProvince.setVisibility(Lists.notEmpty(provinces) ? View.VISIBLE : View.GONE);
-        textViewCity.setVisibility(Lists.notEmpty(cities) ? View.VISIBLE : View.GONE);
-        textViewCounty.setVisibility(Lists.notEmpty(counties) ? View.VISIBLE : View.GONE);
-        textViewStreet.setVisibility(Lists.notEmpty(streets) ? View.VISIBLE : View.GONE);
-
-        textViewProvince.setEnabled(tabIndex != INDEX_TAB_PROVINCE);
-        textViewCity.setEnabled(tabIndex != INDEX_TAB_CITY);
-        textViewCounty.setEnabled(tabIndex != INDEX_TAB_COUNTY);
-        textViewStreet.setEnabled(tabIndex != INDEX_TAB_STREET);
-    }
-
     private void initViews() {
-        view = inflater.inflate(R.layout.address_selector, null);
+        view = LayoutInflater.from(context).inflate(R.layout.address_selector, null);
 
         this.progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 
@@ -184,12 +167,16 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
         this.textViewProvince.setOnClickListener(new OnProvinceTabClickListener());
         this.textViewCity.setOnClickListener(new OnCityTabClickListener());
-        this.textViewCounty.setOnClickListener(new onCountyTabClickListener());
+        this.textViewCounty.setOnClickListener(new OnCountyTabClickListener());
         this.textViewStreet.setOnClickListener(new OnStreetTabClickListener());
 
         this.listView.setOnItemClickListener(this);
 
         updateIndicator();
+    }
+
+    public View getView() {
+        return view;
     }
 
     private void updateIndicator() {
@@ -265,7 +252,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
     }
 
-    private class onCountyTabClickListener implements View.OnClickListener {
+    private class OnCountyTabClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             tabIndex = INDEX_TAB_COUNTY;
@@ -293,6 +280,18 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
             updateTabsVisibility();
             updateIndicator();
         }
+    }
+
+    private void updateTabsVisibility() {
+        textViewProvince.setVisibility(Lists.notEmpty(provinces) ? View.VISIBLE : View.GONE);
+        textViewCity.setVisibility(Lists.notEmpty(cities) ? View.VISIBLE : View.GONE);
+        textViewCounty.setVisibility(Lists.notEmpty(counties) ? View.VISIBLE : View.GONE);
+        textViewStreet.setVisibility(Lists.notEmpty(streets) ? View.VISIBLE : View.GONE);
+
+        textViewProvince.setEnabled(tabIndex != INDEX_TAB_PROVINCE);
+        textViewCity.setEnabled(tabIndex != INDEX_TAB_CITY);
+        textViewCounty.setEnabled(tabIndex != INDEX_TAB_COUNTY);
+        textViewStreet.setEnabled(tabIndex != INDEX_TAB_STREET);
     }
 
     @Override
@@ -384,10 +383,6 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
         updateTabsVisibility();
         updateIndicator();
-    }
-
-    public View getView() {
-        return view;
     }
 
     private void callbackInternal() {

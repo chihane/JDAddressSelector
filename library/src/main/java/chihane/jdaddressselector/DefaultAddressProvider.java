@@ -1,5 +1,9 @@
 package chihane.jdaddressselector;
 
+import android.content.Context;
+
+import com.raizlabs.android.dbflow.config.FlowConfig;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
@@ -13,7 +17,11 @@ import chihane.jdaddressselector.model.Province;
 import chihane.jdaddressselector.model.Street;
 import chihane.jdaddressselector.model.Street_Table;
 
-public class DefaultAddressProvider implements AddressProvider {
+class DefaultAddressProvider implements AddressProvider {
+    DefaultAddressProvider(Context context) {
+        FlowManager.init(new FlowConfig.Builder(context.getApplicationContext()).build());
+    }
+
     @Override
     public void provideProvinces(final AddressReceiver<Province> addressReceiver) {
         final FlowQueryList<Province> provinceQueryList = SQLite.select()

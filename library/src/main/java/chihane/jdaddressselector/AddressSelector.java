@@ -234,7 +234,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         return set;
     }
 
-    class OnProvinceTabClickListener implements View.OnClickListener {
+    private class OnProvinceTabClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
@@ -250,7 +250,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
     }
 
-    class OnCityTabClickListener implements View.OnClickListener {
+    private class OnCityTabClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             tabIndex = INDEX_TAB_CITY;
@@ -265,7 +265,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
     }
 
-    class onCountyTabClickListener implements View.OnClickListener {
+    private class onCountyTabClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             tabIndex = INDEX_TAB_COUNTY;
@@ -280,7 +280,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
     }
 
-    class OnStreetTabClickListener implements View.OnClickListener {
+    private class OnStreetTabClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             tabIndex = INDEX_TAB_STREET;
@@ -307,8 +307,6 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 textViewCounty.setText("请选择");
                 textViewStreet.setText("请选择");
 
-                retrieveCitiesWith(province.id);
-
                 // 清空子级数据
                 cities = null;
                 counties = null;
@@ -326,6 +324,8 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 // 更新选中效果
                 provinceAdapter.notifyDataSetChanged();
 
+                retrieveCitiesWith(province.id);
+
                 break;
 
             case INDEX_TAB_CITY:
@@ -334,8 +334,6 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 textViewCity.setText(city.name);
                 textViewCounty.setText("请选择");
                 textViewStreet.setText("请选择");
-
-                retrieveCountiesWith(city.id);
 
                 counties = null;
                 streets = null;
@@ -348,6 +346,8 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
 
                 cityAdapter.notifyDataSetChanged();
 
+                retrieveCountiesWith(city.id);
+
                 break;
 
             case INDEX_TAB_COUNTY:
@@ -356,8 +356,6 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 textViewCounty.setText(county.name);
                 textViewStreet.setText("请选择");
 
-                retrieveStreetsWith(county.id);
-
                 streets = null;
                 streetAdapter.notifyDataSetChanged();
 
@@ -365,6 +363,8 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
                 this.streetIndex = INDEX_INVALID;
 
                 countyAdapter.notifyDataSetChanged();
+
+                retrieveStreetsWith(county.id);
 
                 break;
 
@@ -447,7 +447,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         });
     }
 
-    class ProvinceAdapter extends BaseAdapter {
+    private class ProvinceAdapter extends BaseAdapter {
 
         @Override
         public int getCount() {
@@ -496,7 +496,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
     }
 
-    class CityAdapter extends BaseAdapter {
+    private class CityAdapter extends BaseAdapter {
 
         @Override
         public int getCount() {
@@ -545,7 +545,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
     }
 
-    class CountyAdapter extends BaseAdapter {
+    private class CountyAdapter extends BaseAdapter {
 
         @Override
         public int getCount() {
@@ -594,7 +594,7 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         }
     }
 
-    class StreetAdapter extends BaseAdapter {
+    private class StreetAdapter extends BaseAdapter {
 
         @Override
         public int getCount() {

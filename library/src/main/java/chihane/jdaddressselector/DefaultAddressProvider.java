@@ -17,8 +17,8 @@ import chihane.jdaddressselector.model.Province;
 import chihane.jdaddressselector.model.Street;
 import chihane.jdaddressselector.model.Street_Table;
 
-class DefaultAddressProvider implements AddressProvider {
-    DefaultAddressProvider(Context context) {
+public class DefaultAddressProvider implements AddressProvider {
+    public DefaultAddressProvider(Context context) {
         FlowManager.init(new FlowConfig.Builder(context.getApplicationContext()).build());
     }
 

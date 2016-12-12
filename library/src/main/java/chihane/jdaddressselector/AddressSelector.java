@@ -651,6 +651,8 @@ public class AddressSelector implements AdapterView.OnItemClickListener {
         if (addressProvider == null) {
             this.addressProvider = DEFAULT_ADDRESS_PROVIDER;
         }
+
+        retrieveProvinces();
     }
 
 }

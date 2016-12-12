@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements OnAddressSelected
 
         AddressSelector selector = new AddressSelector(this);
         selector.setOnAddressSelectedListener(this);
-//        selector.setAddressProvider(new DefaultAddressProvider());
+//        selector.setAddressProvider(new TestAddressProvider());
 
         assert frameLayout != null;
         frameLayout.addView(selector.getView());

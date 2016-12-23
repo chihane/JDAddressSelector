@@ -50,18 +50,15 @@
     selector.setAddressProvider(new AddressProvider() {
         @Override
         public void provideProvinces(AddressReceiver<Province> addressReceiver) {
-            List<Province> provinces = // blahblahblah 
+            List<Province> provinces = addressApi.provincesFromDatabase();
             addressReceiver.send(provinces);    
         }
     
         @Override
         public void provideCitiesWith(int provinceId, AddressReceiver<City> addressReceiver) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    List<City> cities = // blahblahblah
-                    addressReceiver.send(cities);
-                }
+            new Thread(() -> {
+                List<City> cities = addressApi.citiesSync(provinceId);
+                addressReceiver.send(cities);
             }).start();
         }
     
@@ -69,17 +66,10 @@
         public void provideCountiesWith(int cityId, AddressReceiver<County> addressReceiver) {
             addressApi.counties(cityId)
                     .subscribeOn(Schedulers.io())
-                    .subscribe(new Action1<List<County>>() {
-                        @Override
-                        public void call(List<County> counties) {
-                            addressReceiver.send(counties);
-                        }
-                    }, new Action1<Throwable>() {
-                        @Override
-                        public void call(Throwable throwable) {
-                            addressReceiver.send(null);
-                        }
-                    });
+                    .subscribe(
+                        counties -> addressReceiver.send(counties),
+                        throwable -> addressReceiver.send(null)
+                    );
         }
     
         @Override
